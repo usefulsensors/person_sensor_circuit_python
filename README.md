@@ -105,3 +105,11 @@ You can see that `98` is shown. If it isn't present then it means the sensor
 isn't responding to I2C messages as it should be. The most likely cause is that 
 there's a wiring problem, so if you hit this you should double-check that the 
 SDA and SCL wires are going to the right pins.
+
+## Going Further
+
+This script is designed to be a simple standalone example of reading data from
+the person sensor, but for your own applications you may want to check out the
+[full library from @robotastic](https://github.com/robotastic/CircuitPython_UsefulSensors_PersonDetector).
+This also shows how to configure options on the sensor, and access advanced
+features like face recognition.
