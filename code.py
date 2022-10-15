@@ -28,9 +28,12 @@ PERSON_SENSOR_RESULT_BYTE_COUNT = struct.calcsize(PERSON_SENSOR_RESULT_FORMAT)
 # How long to pause between sensor polls.
 PERSON_SENSOR_DELAY = 0.2
 
-# These pins are for the Pico. Other boards will need different constants,
-# or you may just be able to call board.i2c() directly.
-i2c = busio.I2C(scl=board.GP5, sda=board.GP4)
+# The Pico doesn't support board.I2C(), so check before calling it. If it isn't
+# present then we assume we're on a Pico and call an explicit function.
+try:
+    i2c = board.I2C()
+except:
+    i2c = busio.I2C(scl=board.GP5, sda=board.GP4)
 
 # Wait until we can access the bus.
 while not i2c.try_lock():

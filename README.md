@@ -10,18 +10,19 @@ computer vision to spot faces.
 
 There's a [detailed developer guide](https://usfl.ink/ps_dev)
 available, but this project has sample code that shows you specifically how to 
-get the sensor up and running with a Raspberry Pi Pico using CircuitPython.
-
-It should also work on other boards using CircuitPython, but you'll have to
-update the pin numbers and I2C initialization code to match their 
-configurations.
+get the sensor up and running using CircuitPython. It has been tested with
+Raspberry Pi Pico and Wio Terminal boards, but should hopefully work on other
+CircuitPython-compatible platforms. If it isn't working on a board that isn't
+listed, it's likely to be a problem with either the pin numbers assigned to the
+I2C interface, or some other I2C initialization issue.
 
 ## Setting up Circuit Python
 
 You should read the [official guide to setting up CircuitPython on a Pico](https://learn.adafruit.com/getting-started-with-raspberry-pi-pico-circuitpython)
 for the latest information, but here is a summary:
 
- - Download CircuitPython for the Pico from circuitpython.org: https://circuitpython.org/board/raspberry_pi_pico/.
+ - Download CircuitPython for the for your board from circuitpython.org. For
+ example the Pico version is available at https://circuitpython.org/board/raspberry_pi_pico/.
  This project has been tested using the `8.0.0-beta.2` version.
  - Hold down the `bootsel` button on the Pico and plug it into a USB port.
  - Drag the CircuitPython uf2 file onto the `RPI-RP2` drive that appears.
@@ -36,7 +37,16 @@ example here uses I2C port 0, which is assigned to GPIO4 (SDA, pin 6) and GPIO5
 (SCL, pin 7) in software. Power is supplied from 3V3(OUT) (pin 36), with ground
 attached to GND (pin 38).
 
-Follow the wiring scheme shown below:
+If you're using a device that comes with a standard connector like a Qwiic or
+Grove interface, you should be able to use the right cable to connect to the
+Qwiic connector on the sensor. You can do this on the Wio Terminal with a
+[Qwiic to Grove cable](https://www.sparkfun.com/products/15109) plugged into the
+left port (below the speaker). 
+
+### Pico Wiring
+
+For the Pico you'll need to connect directly to pins, following the wiring
+scheme shown below:
 
 ![Wiring diagram for Person Sensor/Pico](pico_person_sensor_bb.png)
 
