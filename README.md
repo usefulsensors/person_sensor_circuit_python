@@ -72,6 +72,9 @@ the output with a face present:
 1 [{'box_height': 158, 'box_width': 201, 'id': -1, 'box_confidence': 99, 'box_left': ]
 ```
 
+If your board has a built-in display, like the Wio Terminal, you should also see
+rectangles displayed on it when faces are detected.
+
 ## Troubleshooting
 
 ### Power
