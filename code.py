@@ -1,11 +1,13 @@
 # Example of accessing the Person Sensor from Useful Sensors on a Pico using
 # CircuitPython. See https://usfl.ink/ps_dev for the full developer guide.
 
-import time
-import busio
+import bitmaptools
 import board
+import busio
 import digitalio
+import displayio
 import struct
+import time
 
 # The person sensor has the I2C ID of hex 62, or decimal 98.
 PERSON_SENSOR_I2C_ADDRESS = 0x62
@@ -47,10 +49,22 @@ while not i2c.try_lock():
 #    print(i2c.scan())
 #    time.sleep(PERSON_SENSOR_DELAY)
 
-# We're going to use the LED for output.
-led = digitalio.DigitalInOut(board.LED)
-led.direction = digitalio.Direction.OUTPUT
+# Set up the builtin display if there's one available
+try:
+    display = board.DISPLAY
+except:
+    display = None
+if display:
+    bitmap = displayio.Bitmap(display.width, display.height, 2)
+    palette = displayio.Palette(2)
+    palette[0] = 0x000000
+    palette[1] = 0xffffff
+    tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
+    group = displayio.Group()
+    group.append(tile_grid)
+    display.show(group)
 
+# Keep looping and reading the person sensor results.
 while True:
     read_data = bytearray(PERSON_SENSOR_RESULT_BYTE_COUNT)
     i2c.readfrom_into(PERSON_SENSOR_I2C_ADDRESS, read_data)
@@ -66,15 +80,15 @@ while True:
 
     faces = []
     for i in range(num_faces):
-        (box_confidence, box_left, box_top, box_width, box_height, id_confidence, id,
+        (box_confidence, box_left, box_top, box_right, box_bottom, id_confidence, id,
          is_facing) = struct.unpack_from(PERSON_SENSOR_FACE_FORMAT, read_data, offset)
         offset = offset + PERSON_SENSOR_FACE_BYTE_COUNT
         face = {
             "box_confidence": box_confidence,
             "box_left": box_left,
             "box_top": box_top,
-            "box_width": box_width,
-            "box_height": box_height,
+            "box_right": box_right,
+            "box_bottom": box_bottom,
             "id_confidence": id_confidence,
             "id": id,
             "is_facing": is_facing,
@@ -82,4 +96,28 @@ while True:
         faces.append(face)
     checksum = struct.unpack_from("H", read_data, offset)
     print(num_faces, faces)
+
+    # If the board has a display, draw rectangles for the face boxes, and a
+    # diagonal cross if the person is facing the sensor.
+    if display:
+        bitmaptools.fill_region(bitmap, 0, 0, display.width, display.height, 0)
+        for face in faces:
+            box_left = face["box_left"]
+            box_top = face["box_top"]
+            box_right = face["box_right"]
+            box_bottom = face["box_bottom"]
+            x0 = int((box_left * display.width) / 256)
+            y0 = int((box_top * display.height) / 256)
+            x1 = int((box_right * display.width) / 256)
+            y1 = int((box_bottom * display.height) / 256)
+            print(x0, y0, x1, y1)
+            print(display.width, display.height)
+            bitmaptools.draw_line(bitmap, x0, y0, x1, y0, 1)
+            bitmaptools.draw_line(bitmap, x1, y0, x1, y1, 1)
+            bitmaptools.draw_line(bitmap, x1, y1, x0, y1, 1)
+            bitmaptools.draw_line(bitmap, x0, y1, x0, y0, 1)
+            if face["is_facing"]:
+                bitmaptools.draw_line(bitmap, x0, y0, x1, y1, 1)
+                bitmaptools.draw_line(bitmap, x1, y0, x0, y1, 1)
+
     time.sleep(PERSON_SENSOR_DELAY)
