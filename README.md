@@ -1,5 +1,5 @@
 # Person Sensor in CircuitPython
-How to access the Useful Sensor's Person Sensor from CircuitPython
+How to access Useful Sensor's Person Sensor from CircuitPython.
 
 ## Introduction
 
